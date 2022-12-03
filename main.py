@@ -1,6 +1,6 @@
-from ant import AntColony
+from algorithms.ant import AntColony
 from tsp import TSP
-from loop import LoopSolution
+from algorithms.loop import LoopSolution
 from typing import List
 
 
@@ -25,16 +25,18 @@ if __name__ == '__main__':
     mmas_colony = AntColony(AntColony.Variation.MAXMIN_ANT_SYSTEM, mmas_settings)
     ras_colony = AntColony(AntColony.Variation.RANKBASED_ANT_SYSTEM, ras_settings)
 
-    path, dist = ras_colony.solve(initial_state, tsp.successors, tsp.goal)
+    # print(tsp.cities_to_dict())
+    path, dist = ras_colony.solve(initial_state, tsp.successors, tsp.goal, tsp.add_generation)
     print("Rank-based Ant System: ", [p.current_node for p in path], dist)
+    # print(tsp.get_solution_in_generations())
 
-    path, dist = eas_colony.solve(initial_state, tsp.successors, tsp.goal)
+    path, dist = eas_colony.solve(initial_state, tsp.successors, tsp.goal, tsp.add_generation)
     print("Elitist Ant System: ", [p.current_node for p in path], dist)
 
-    path, dist = as_colony.solve(initial_state, tsp.successors, tsp.goal)
+    path, dist = as_colony.solve(initial_state, tsp.successors, tsp.goal, tsp.add_generation)
     print("Ant System: ", [p.current_node for p in path], dist)
 
-    path, dist = mmas_colony.solve(initial_state, tsp.successors, tsp.goal)
+    path, dist = mmas_colony.solve(initial_state, tsp.successors, tsp.goal, tsp.add_generation)
     print("Max-Min Ant System: ", [p.current_node for p in path], dist)
 
     basic = LoopSolution(n)

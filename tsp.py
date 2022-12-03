@@ -14,6 +14,7 @@ class TSP:
 
     def __init__(self, cities: List[City]):
         self.cities = cities
+        self.solution_in_generations = []
 
     @property
     def cities_amount(self):
@@ -54,3 +55,25 @@ class TSP:
         dx = self.cities[u].x - self.cities[v].x
         dy = self.cities[u].y - self.cities[v].y
         return math.sqrt(dx * dx + dy * dy)
+
+    def cities_to_dict(self):
+        cities_dict = {}
+        for city in self.cities:
+            cities_dict[str(city.id)] = [city.x, city.y]
+        return cities_dict
+
+    def add_generation(self, path: List):
+        current_solution = []
+        for state in path:
+            current_solution.append(self.cities[state.current_node])
+        self.solution_in_generations.append(current_solution)
+
+    def get_solution_in_generations(self):
+        history = []
+        for solution in self.solution_in_generations:
+            path_x, path_y = [], []
+            for city in solution:
+                path_x.append(city.x)
+                path_y.append(city.y)
+            history.append([path_x, path_y])
+        return history
