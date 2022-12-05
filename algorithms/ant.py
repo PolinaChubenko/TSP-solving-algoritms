@@ -152,7 +152,7 @@ class AntColony:
                     self.min_pheromones = self.max_pheromones * (1 - n_root) / (avg - 1) / n_root
 
                     # print(self.best_solution.distance, ' ', i, '/', self.settings.iterations)
-                    add_generation_fn(self.best_solution.path)
+                    add_generation_fn(self.best_solution.path, self.best_solution.distance)
 
             self._update_pheromones(trails)
 
