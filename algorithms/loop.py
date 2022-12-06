@@ -12,7 +12,7 @@ class LoopSolution:
         self.adjacency_graph = np.zeros((cities_amount, cities_amount), dtype=float)
         self.best_solution = LoopSolution.Trail([], float('inf'))
 
-    def solve(self, initial_state: Any, dist_fn) -> Trail:
+    def solve(self, initial_state: Any, dist_fn) -> float:
         self.best_solution = LoopSolution.Trail([], float('inf'))
 
         it = np.nditer(self.adjacency_graph, flags=['multi_index'], op_flags=['readwrite'])
@@ -39,4 +39,4 @@ class LoopSolution:
                 path = [initial_state] + list(perm) + [initial_state]
                 self.best_solution = LoopSolution.Trail(path, current_path_weight)
 
-        return self.best_solution
+        return self.best_solution.distance

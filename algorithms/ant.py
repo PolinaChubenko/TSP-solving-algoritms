@@ -4,6 +4,7 @@ from typing import Dict, Any, List, Tuple, NamedTuple, Optional
 from collections import defaultdict
 from operator import attrgetter
 import numpy as np
+from scipy.stats import randint
 
 
 class AntColony:
@@ -20,8 +21,8 @@ class AntColony:
         rho: float = 0.4  # Pheromone evaporation constant.
         Q: float = 1  # Pheromone deposited on a path.
         elitist: int = 3  # Number of elitist ants for elitist and rank-based ant systems.
-        ants: int = 50  # Number of ants.
-        iterations: int = 1000
+        ants: int = 10  # Number of ants.
+        iterations: int = 500
         infinity: float = 1e9  # Initial value pheromone value for max min ant system.
         p_best: float = 0.05  # Probability of the best solution being taken at convergence for max min ant system.
 
@@ -52,8 +53,8 @@ class AntColony:
         path = [initial_state]
         distance = 0.0
 
-        while not goal_fn(path[-1]):
-            successors: List[Tuple[Any, float]] = successors_fn(path[-1])
+        while not goal_fn(path[-1], initial_state):
+            successors: List[Tuple[Any, float]] = successors_fn(path[-1], initial_state)
 
             desirability = [
                 pow(self.pheromones[(path[-1], next_state)],
@@ -131,29 +132,39 @@ class AntColony:
             for r in range(self.settings.elitist):
                 self._deposit_pheromones(sorted_trails[r], rank=r)
 
-    def solve(self, initial_state: Any, successors_fn, goal_fn, add_generation_fn) -> Trail:
+    def solve(self, n_cities: int, state: Any, successors_fn, goal_fn,
+              add_to_history_fn, add_iteration_fn) -> float:
+
         self.best_solution = AntColony.Trail([], float('inf'))
 
         for i in range(self.settings.iterations):
             trails: List[AntColony.Trail] = []
+            best_iteration_trail = AntColony.Trail([], float('inf'))
+
+            # ants_position = np.random.permutation(n_cities)
+            ants_position = randint.rvs(0, n_cities, size=self.settings.ants)
 
             for ant in range(self.settings.ants):
-                trail = self._generate_solution(initial_state, successors_fn, goal_fn)
+                ant_state = ants_position[ant]
+                trail = self._generate_solution(state(1 << ant_state, ant_state), successors_fn, goal_fn)
                 trails.append(trail)
 
-                if trail.distance < self.best_solution.distance:
-                    self.best_solution = trail
+                if trail.distance < best_iteration_trail.distance:
+                    best_iteration_trail = trail
 
                     # Update bounds for max min ant system.
-                    n_root = pow(self.settings.p_best, 1 / len(trail.path))
-                    avg = len(trail.path) / 2
+                    if self.variation == self.Variation.MAXMIN_ANT_SYSTEM:
+                        n_root = pow(self.settings.p_best, 1 / len(trail.path))
+                        avg = len(trail.path) / 2
+                        self.max_pheromones = 1 / (1 - self.settings.rho) * self.settings.Q / trail.distance
+                        self.min_pheromones = self.max_pheromones * (1 - n_root) / (avg - 1) / n_root
 
-                    self.max_pheromones = 1 / (1 - self.settings.rho) * self.settings.Q / trail.distance
-                    self.min_pheromones = self.max_pheromones * (1 - n_root) / (avg - 1) / n_root
+            add_iteration_fn(best_iteration_trail.distance)
 
-                    # print(self.best_solution.distance, ' ', i, '/', self.settings.iterations)
-                    add_generation_fn(self.best_solution.path, self.best_solution.distance)
+            if best_iteration_trail.distance < self.best_solution.distance:
+                self.best_solution = best_iteration_trail
 
+            add_to_history_fn(self.best_solution.path, self.best_solution.distance)
             self._update_pheromones(trails)
 
-        return self.best_solution
+        return self.best_solution.distance

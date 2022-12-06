@@ -13,7 +13,6 @@ if __name__ == '__main__':
         cities.append(TSP.City(id, int(x), int(y)))
 
     tsp = TSP(cities)
-    initial_state = TSP.State(1 << 0, 0)
 
     as_settings = AntColony.Settings()
     eas_settings = AntColony.Settings(elitist=3)
@@ -26,19 +25,20 @@ if __name__ == '__main__':
     ras_colony = AntColony(AntColony.Variation.RANKBASED_ANT_SYSTEM, ras_settings)
 
     # print(tsp.cities_to_dict())
-    path, dist = ras_colony.solve(initial_state, tsp.successors, tsp.goal, tsp.add_generation)
-    print("Rank-based Ant System: ", [p.current_node for p in path], dist)
-    # print(tsp.get_solution_in_generations())
+    dist = ras_colony.solve(n, tsp.State, tsp.successors, tsp.goal, tsp.add_to_history, tsp.add_iteration)
+    print("Rank-based Ant System: ", dist)
+    # print(tsp.get_iterations())
 
-    path, dist = eas_colony.solve(initial_state, tsp.successors, tsp.goal, tsp.add_generation)
-    print("Elitist Ant System: ", [p.current_node for p in path], dist)
+    dist = eas_colony.solve(n, tsp.State, tsp.successors, tsp.goal, tsp.add_to_history, tsp.add_iteration)
+    print("Elitist Ant System: ", dist)
 
-    path, dist = as_colony.solve(initial_state, tsp.successors, tsp.goal, tsp.add_generation)
-    print("Ant System: ", [p.current_node for p in path], dist)
+    dist = as_colony.solve(n, tsp.State, tsp.successors, tsp.goal, tsp.add_to_history, tsp.add_iteration)
+    print("Ant System: ", dist)
 
-    path, dist = mmas_colony.solve(initial_state, tsp.successors, tsp.goal, tsp.add_generation)
-    print("Max-Min Ant System: ", [p.current_node for p in path], dist)
+    dist = mmas_colony.solve(n, tsp.State, tsp.successors, tsp.goal, tsp.add_to_history, tsp.add_iteration)
+    print("Max-Min Ant System: ", dist)
 
-    basic = LoopSolution(n)
-    path, dist = basic.solve(initial_state.current_node, tsp.dist)
-    print("Basic algo: ", path, dist)
+    # basic = LoopSolution(n)
+    # initial_state = TSP.State(1 << 0, 0)
+    # dist = basic.solve(initial_state.current_node, tsp.dist)
+    # print("Basic algo: ", dist)
