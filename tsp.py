@@ -111,3 +111,10 @@ class TSP:
     def answer_dist(self) -> float:
         """Return answer for TSP problem as found distance"""
         return self.dist_in_iterations[-1]
+
+    @staticmethod
+    def path_length(path) -> float:
+        length = 0
+        for i in range(len(path)):
+            length += self.dist(path[i], path[(i + 1) % len(path)])
+        return length
