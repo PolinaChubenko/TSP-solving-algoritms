@@ -22,7 +22,7 @@ class AntColony:
         Q: float = 1  # Pheromone deposited on a path.
         elitist: int = 3  # Number of elitist ants for elitist and rank-based ant systems.
         ants: int = 10  # Number of ants.
-        iterations: int = 500
+        iterations: int = 50
         infinity: float = 1e9  # Initial value pheromone value for max min ant system.
         p_best: float = 0.05  # Probability of the best solution being taken at convergence for max min ant system.
 
@@ -132,12 +132,16 @@ class AntColony:
             for r in range(self.settings.elitist):
                 self._deposit_pheromones(sorted_trails[r], rank=r)
 
-    def solve(self, n_cities: int, state: Any, successors_fn, goal_fn,
-              add_to_history_fn, add_iteration_fn) -> float:
+    def solve(self, tsp) -> float:
+        """Function finds the best path and saves the necessary info to the task class
 
+        from tsp class ACO uses successors_fn, goal_fn, add_to_history_fn, add_iteration_fn
+        and State subclass
+        """
+        n_cities = tsp.cities_amount
         self.best_solution = AntColony.Trail([], float('inf'))
 
-        for i in range(self.settings.iterations):
+        for _ in range(self.settings.iterations):
             trails: List[AntColony.Trail] = []
             best_iteration_trail = AntColony.Trail([], float('inf'))
 
@@ -146,7 +150,7 @@ class AntColony:
 
             for ant in range(self.settings.ants):
                 ant_state = ants_position[ant]
-                trail = self._generate_solution(state(1 << ant_state, ant_state), successors_fn, goal_fn)
+                trail = self._generate_solution(tsp.State(1 << ant_state, ant_state), tsp.successors, tsp.goal)
                 trails.append(trail)
 
                 if trail.distance < best_iteration_trail.distance:
@@ -159,12 +163,12 @@ class AntColony:
                         self.max_pheromones = 1 / (1 - self.settings.rho) * self.settings.Q / trail.distance
                         self.min_pheromones = self.max_pheromones * (1 - n_root) / (avg - 1) / n_root
 
-            add_iteration_fn(best_iteration_trail.distance)
+            tsp.add_iteration(best_iteration_trail.distance)
 
             if best_iteration_trail.distance < self.best_solution.distance:
                 self.best_solution = best_iteration_trail
 
-            add_to_history_fn(self.best_solution.path, self.best_solution.distance)
+            tsp.add_to_history(self.best_solution.path, self.best_solution.distance)
             self._update_pheromones(trails)
 
         return self.best_solution.distance

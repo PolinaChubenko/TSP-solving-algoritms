@@ -25,18 +25,19 @@ if __name__ == '__main__':
     ras_colony = AntColony(AntColony.Variation.RANKBASED_ANT_SYSTEM, ras_settings)
 
     # print(tsp.cities_to_dict())
-    dist = ras_colony.solve(n, tsp.State, tsp.successors, tsp.goal, tsp.add_to_history, tsp.add_iteration)
+    dist = ras_colony.solve(tsp)
     print("Rank-based Ant System: ", dist)
-    # print(tsp.get_iterations())
+    print("Rank-based Ant System: ", tsp.answer_dist())
+    print(tsp.get_iterations())
 
-    dist = eas_colony.solve(n, tsp.State, tsp.successors, tsp.goal, tsp.add_to_history, tsp.add_iteration)
-    print("Elitist Ant System: ", dist)
-
-    dist = as_colony.solve(n, tsp.State, tsp.successors, tsp.goal, tsp.add_to_history, tsp.add_iteration)
-    print("Ant System: ", dist)
-
-    dist = mmas_colony.solve(n, tsp.State, tsp.successors, tsp.goal, tsp.add_to_history, tsp.add_iteration)
-    print("Max-Min Ant System: ", dist)
+    # dist = eas_colony.solve(n, tsp.State, tsp.successors, tsp.goal, tsp.add_to_history, tsp.add_iteration)
+    # print("Elitist Ant System: ", dist)
+    #
+    # dist = as_colony.solve(n, tsp.State, tsp.successors, tsp.goal, tsp.add_to_history, tsp.add_iteration)
+    # print("Ant System: ", dist)
+    #
+    # dist = mmas_colony.solve(n, tsp.State, tsp.successors, tsp.goal, tsp.add_to_history, tsp.add_iteration)
+    # print("Max-Min Ant System: ", dist)
 
     # basic = LoopSolution(n)
     # initial_state = TSP.State(1 << 0, 0)

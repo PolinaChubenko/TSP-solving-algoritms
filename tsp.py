@@ -1,5 +1,7 @@
 import math
 from typing import NamedTuple, List, Tuple, Dict, Any
+import numpy as np
+from scipy.spatial import distance_matrix
 
 
 class TSP:
@@ -14,6 +16,14 @@ class TSP:
 
     def __init__(self, cities: List[City]):
         self.cities = cities
+        self.dist_in_iterations = []
+        self.solutions_history = []
+
+        cities_coords = np.array([[c.x, c.y] for c in self.cities])
+        self.distance_matrix = distance_matrix(cities_coords, cities_coords)
+        print(self.distance_matrix)
+
+    def clear_answer(self):
         self.dist_in_iterations = []
         self.solutions_history = []
 
@@ -54,9 +64,7 @@ class TSP:
 
     def dist(self, u: int, v: int) -> float:
         """Euclidean distance between cities."""
-        dx = self.cities[u].x - self.cities[v].x
-        dy = self.cities[u].y - self.cities[v].y
-        return math.sqrt(dx * dx + dy * dy)
+        return self.distance_matrix[u][v]
 
     def cities_to_dict(self) -> Dict:
         """Get cities for TSP problem as dict"""
@@ -110,7 +118,7 @@ class TSP:
 
     def answer_dist(self) -> float:
         """Return answer for TSP problem as found distance"""
-        return self.dist_in_iterations[-1]
+        return self.solutions_history[-1]['distance']
 
     @staticmethod
     def path_length(path) -> float:

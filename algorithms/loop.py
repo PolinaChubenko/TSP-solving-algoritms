@@ -36,6 +36,7 @@ class LoopSolution:
             current_path_weight += self.adjacency_graph[k][initial_state]
 
             if current_path_weight < self.best_solution.distance:
+                print(self.best_solution.distance)
                 path = [initial_state] + list(perm) + [initial_state]
                 self.best_solution = LoopSolution.Trail(path, current_path_weight)
 
