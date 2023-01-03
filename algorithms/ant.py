@@ -16,13 +16,13 @@ class AntColony:
 
     @dataclass
     class Settings:
-        alpha: float = 0.5  # Control the influence of pheromone.
-        beta: float = 1.2  # Control the influence of a priori knowledge (inverse distance).
+        alpha: float = 1  # Control the influence of pheromone.
+        beta: float = 3  # Control the influence of a priori knowledge (inverse distance).
         rho: float = 0.4  # Pheromone evaporation constant.
         Q: float = 1  # Pheromone deposited on a path.
         elitist: int = 3  # Number of elitist ants for elitist and rank-based ant systems.
-        ants: int = 10  # Number of ants.
-        iterations: int = 50
+        ants: int = 0  # Number of ants.
+        iterations: int = 100
         infinity: float = 1e9  # Initial value pheromone value for max min ant system.
         p_best: float = 0.05  # Probability of the best solution being taken at convergence for max min ant system.
 
@@ -132,26 +132,31 @@ class AntColony:
             for r in range(self.settings.elitist):
                 self._deposit_pheromones(sorted_trails[r], rank=r)
 
-    def solve(self, tsp) -> float:
+    def solve(self, tsp, logging=False) -> float:
         """Function finds the best path and saves the necessary info to the task class
 
         from tsp class ACO uses successors_fn, goal_fn, add_to_history_fn, add_iteration_fn
         and State subclass
         """
         n_cities = tsp.cities_amount
+        if self.settings.ants == 0:
+            self.settings.ants = n_cities
+
         self.best_solution = AntColony.Trail([], float('inf'))
 
         for _ in range(self.settings.iterations):
             trails: List[AntColony.Trail] = []
             best_iteration_trail = AntColony.Trail([], float('inf'))
 
-            # ants_position = np.random.permutation(n_cities)
             ants_position = randint.rvs(0, n_cities, size=self.settings.ants)
 
             for ant in range(self.settings.ants):
                 ant_state = ants_position[ant]
                 trail = self._generate_solution(tsp.State(1 << ant_state, ant_state), tsp.successors, tsp.goal)
                 trails.append(trail)
+
+                if logging:
+                    tsp.add_ant_distance(trail.distance)
 
                 if trail.distance < best_iteration_trail.distance:
                     best_iteration_trail = trail
@@ -163,12 +168,19 @@ class AntColony:
                         self.max_pheromones = 1 / (1 - self.settings.rho) * self.settings.Q / trail.distance
                         self.min_pheromones = self.max_pheromones * (1 - n_root) / (avg - 1) / n_root
 
-            tsp.add_iteration(best_iteration_trail.distance)
+            if logging:
+                tsp.add_iteration(best_iteration_trail.distance)
 
             if best_iteration_trail.distance < self.best_solution.distance:
                 self.best_solution = best_iteration_trail
 
-            tsp.add_to_history(self.best_solution.path, self.best_solution.distance)
+            if logging:
+                tsp.add_to_history(self.best_solution.path, self.best_solution.distance)
+
             self._update_pheromones(trails)
 
+        if logging:
+            tsp.add_ant_distance(self.settings.iterations, self.settings.ants)
+
+        tsp.solution = self.best_solution.distance
         return self.best_solution.distance
