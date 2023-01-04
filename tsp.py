@@ -120,8 +120,7 @@ class TSP:
         """Return answer for TSP problem as found distance"""
         return self.solutions_history[-1]['distance']
 
-    @staticmethod
-    def path_length(path) -> float:
+    def path_length(self, path) -> float:
         length = 0
         for i in range(len(path)):
             length += self.dist(path[i], path[(i + 1) % len(path)])
