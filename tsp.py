@@ -2,6 +2,7 @@ import math
 from typing import NamedTuple, List, Tuple, Dict, Any
 import numpy as np
 from scipy.spatial import distance_matrix
+from multipledispatch import dispatch
 
 
 class TSP:
@@ -15,17 +16,20 @@ class TSP:
         current_node: int
 
     def __init__(self, cities: List[City]):
+        self._solution = 0
         self.cities = cities
         self.dist_in_iterations = []
         self.solutions_history = []
+        self.ants_dists = []
 
         cities_coords = np.array([[c.x, c.y] for c in self.cities])
         self.distance_matrix = distance_matrix(cities_coords, cities_coords)
-        print(self.distance_matrix)
 
     def clear_answer(self):
+        self.solution = 0
         self.dist_in_iterations = []
         self.solutions_history = []
+        self.ants_dists = []
 
     @property
     def cities_amount(self):
@@ -73,6 +77,25 @@ class TSP:
             cities_dict[str(city.id)] = [city.x, city.y]
         return cities_dict
 
+    @dispatch(float)
+    def add_ant_distance(self, dist: float):
+        """Ant distance saving function
+
+        After each ant finishes its route this function may be called
+        to add found solution (distance) to the list of ants distances."""
+        self.ants_dists.append(dist)
+
+    @dispatch(int, int)
+    def add_ant_distance(self, iters: int, ants: int):
+        """Ant distance saving function
+
+        List is being reshaped according to the launches"""
+        self.ants_dists = np.array(self.ants_dists).reshape((iters, ants))
+
+    def get_ants_distances(self):
+        """Return array of dists for each ant"""
+        return self.ants_dists
+
     def add_iteration(self, dist: float) -> None:
         """Iteration saving function
 
@@ -116,9 +139,14 @@ class TSP:
         answer = self.solutions_history[-1]['path']
         return [city.id for city in answer]
 
-    def answer_dist(self) -> float:
+    @property
+    def solution(self) -> float:
         """Return answer for TSP problem as found distance"""
-        return self.solutions_history[-1]['distance']
+        return self._solution
+
+    @solution.setter
+    def solution(self, result):
+        self._solution = result
 
     def path_length(self, path) -> float:
         length = 0
