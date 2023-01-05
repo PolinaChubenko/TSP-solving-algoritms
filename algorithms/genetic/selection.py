@@ -35,14 +35,15 @@ class TournamentSelection(Selection):
 class RouletteSelection(Selection):
     def select(self, population: np.array) -> np.array:
         fitnesses = np.array(list(map(lambda x: x.get_fitness(), population)))
-        summa = np.sum(fitnesses)
-        probs = fitnesses / summa
+        max_fitness = np.max(fitnesses) + 1
+        summa = np.sum(max_fitness - fitnesses)
+        probs = (max_fitness - fitnesses) / summa
 
         return np.random.choice(population, int(np.ceil(len(population) * self.survived)), p=probs)
 
 
-class RankSelection(Selection):
-    def select(self, population: np.array, a: float = 1):
+class RankSelection(Selection): # TODO сверить определение
+    def select(self, population: np.array, a: float = 1) -> np.array:
         fitnesses = np.array(list(map(lambda x: x.get_fitness(), population)))
         order = np.flip(np.argsort(fitnesses))
         n = len(population)

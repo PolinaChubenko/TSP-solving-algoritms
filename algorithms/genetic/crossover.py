@@ -7,24 +7,45 @@ import random
 
 class ParentGenerator(ABC):
     @abstractmethod
-    def generate(self, population):
+    def generate(self, population: np.array, pairs: int):
         pass
 
 
 class InbreedingParentGenerator(ParentGenerator):
-    def generate(self, population: np.array):
+    def generate(self, population: np.array, pairs: int):
         sorted_population = sorted(population)
 
-        for i in range(0, len(sorted_population) - 1, 2):
-            yield sorted_population[i], sorted_population[i + 1]
+        for i in range(pairs):
+            index = random.randint(0, len(sorted_population) - 1)
+            fitness = sorted_population[i].get_fitness()
+            prev_fitness = sorted_population[(i - 1 + len(sorted_population)) % len(sorted_population)].get_fitness()
+            next_fitness = sorted_population[(i + 1) % len(sorted_population)].get_fitness()
+            if abs(fitness - prev_fitness) < abs(fitness - next_fitness):
+                yield sorted_population[index], sorted_population[(i - 1 + len(sorted_population)) % len(sorted_population)]
+            else:
+                yield sorted_population[index], sorted_population[(i + 1) % len(sorted_population)]
 
 
 class OutbreedingParentGenerator(ParentGenerator):
-    def generate(self, population: np.array):
-        sorted_population = sorted(population)
+    def generate(self, population: np.array, pairs: int):
+        first = np.argmin(population)
+        last = np.argmax(population)
 
-        for i in range(0, len(sorted_population) // 2):
-            yield sorted_population[i], sorted_population[i + len(population) // 2]
+        for i in range(pairs):
+            index = random.randint(0, len(population) - 1)
+            fitness = population[i].get_fitness()
+            if abs(fitness - population[first].get_fitness()) > abs(fitness + population[last].get_fitness()):
+                yield population[i], population[first]
+            else:
+                yield population[i], population[last]
+
+
+class PanmixiaParentGenerator(ParentGenerator):
+    def generate(self, population: np.array, pairs: int):
+        for i in range(pairs):
+            first = random.randint(0, len(population) - 1)
+            second = random.randint(0, len(population) - 1)
+            yield population[first], population[second]
 
 
 class Crossover(ABC):

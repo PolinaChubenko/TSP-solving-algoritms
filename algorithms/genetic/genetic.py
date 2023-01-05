@@ -26,7 +26,7 @@ class GeneticAlgorithm:
     def solve(self, tsp: TSP) -> float:
         Species.set_tsp(tsp)
         population = self.settings.creation.generate_population(tsp.cities_amount)  # TODO
-        alltime_killed = np.array([])
+        # alltime_killed = np.array([])
         best_answer = None
         print("created", len(population))
 
@@ -34,11 +34,11 @@ class GeneticAlgorithm:
             # selection
             population = self.settings.selection.select(population)
             # alltime_killed = np.append(alltime_killed, killed)
-            # print("selected", len(population))
 
             # crossover
             children = []
-            for first_parent, second_parent in self.settings.parent_selector.generate(population): # TODO allow killed to crossover?
+            pairs = (self.settings.population_size - len(population)) // 2
+            for first_parent, second_parent in self.settings.parent_selector.generate(population, pairs): # TODO allow killed to crossover?
                 first_child, second_child = self.settings.crossover.generate_two_children(first_parent, second_parent)
                 children.append(first_child)
                 children.append(second_child)
