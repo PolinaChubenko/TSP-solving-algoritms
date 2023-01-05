@@ -10,9 +10,9 @@ import numpy as np
 class GeneticAlgorithm:
     class Settings:
         # elitist: int = 3
-        population_size: int = 100  # Number of chromosomes.
-        iterations: int = 30
-        survived: float = 0.6  # fraction of survived species after selection
+        population_size: int = 1000  # Number of chromosomes.
+        iterations: int = 500
+        survived: float = 0.5  # fraction of survived species after selection
         mutated: float = 0.3  # fraction of mutated species
         creation: Creation
         selection: Selection
@@ -32,13 +32,13 @@ class GeneticAlgorithm:
 
         for i in range(self.settings.iterations):
             # selection
-            population, killed = self.settings.selection.select(population)
-            alltime_killed = np.append(alltime_killed, killed)
+            population = self.settings.selection.select(population)
+            # alltime_killed = np.append(alltime_killed, killed)
             # print("selected", len(population))
 
             # crossover
             children = []
-            for first_parent, second_parent in self.settings.parent_selector.generate(population): # TODO allow killed to crossover
+            for first_parent, second_parent in self.settings.parent_selector.generate(population): # TODO allow killed to crossover?
                 first_child, second_child = self.settings.crossover.generate_two_children(first_parent, second_parent)
                 children.append(first_child)
                 children.append(second_child)
@@ -53,6 +53,10 @@ class GeneticAlgorithm:
             if (best_answer is None) or (population[0] < best_answer):
                 best_answer = population[0]
 
+            tsp.add_iteration(tsp.path_length(population[0].get_path()))
+            best_answer_states = [TSP.State(0, best_answer.get_path()[i]) for i in range(len(best_answer.get_path()))]
+
+            tsp.add_to_history(best_answer_states, tsp.path_length(best_answer.get_path()))
             print(i, len(population))
 
         return best_answer.get_fitness()
