@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 from .creation import Creation
 from .selection import Selection
 from .mutation import Mutation
@@ -8,19 +10,19 @@ import numpy as np
 
 
 class GeneticAlgorithm:
+    @dataclass
     class Settings:
-        # elitist: int = 3
+        creation: Creation
+        selection: Selection
+        crossover: Crossover
+        parent_generator: ParentGenerator
+        mutation: Mutation
         population_size: int = 1000  # Number of chromosomes.
         iterations: int = 500
         survived: float = 0.5  # fraction of survived species after selection
         mutated: float = 0.3  # fraction of mutated species
-        creation: Creation
-        selection: Selection
-        crossover: Crossover
-        parent_selector: ParentGenerator
-        mutation: Mutation
 
-    def __init__(self, settings: Settings = Settings()):
+    def __init__(self, settings: Settings):
         self.settings = settings
 
     def solve(self, tsp: TSP) -> float:
@@ -28,7 +30,6 @@ class GeneticAlgorithm:
         population = self.settings.creation.generate_population(tsp.cities_amount)  # TODO
         # alltime_killed = np.array([])
         best_answer = None
-        print("created", len(population))
 
         for i in range(self.settings.iterations):
             # selection
@@ -37,11 +38,10 @@ class GeneticAlgorithm:
 
             # crossover
             children = []
-            pairs = (self.settings.population_size - len(population)) // 2
-            for first_parent, second_parent in self.settings.parent_selector.generate(population, pairs): # TODO allow killed to crossover?
-                first_child, second_child = self.settings.crossover.generate_two_children(first_parent, second_parent)
-                children.append(first_child)
-                children.append(second_child)
+            pairs = (self.settings.population_size - len(population))
+            for first_parent, second_parent in self.settings.parent_generator.generate(population, pairs): # TODO allow killed to crossover?
+                child = self.settings.crossover.generate_offspring(first_parent, second_parent)
+                children.append(child)
 
             population = np.append(population, children)
 
@@ -57,7 +57,6 @@ class GeneticAlgorithm:
             best_answer_states = [TSP.State(0, best_answer.get_path()[i]) for i in range(len(best_answer.get_path()))]
 
             tsp.add_to_history(best_answer_states, tsp.path_length(best_answer.get_path()))
-            print(i, len(population))
 
         return best_answer.get_fitness()
 
