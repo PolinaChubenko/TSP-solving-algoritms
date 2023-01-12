@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import numpy as np
-from genetic import Species
+from .species import Species
 
 
 class Creation(ABC):
@@ -8,7 +8,7 @@ class Creation(ABC):
         self.size = size
 
     @abstractmethod
-    def generate_population(self, length: int):
+    def generate_population(self, length: int) -> np.array:
         pass
 
 
@@ -16,10 +16,10 @@ class RandomCreation(Creation):
     def __int__(self, size: int):
         super().__init__(size)
 
-    def generate_population(self, length: int):
+    def generate_population(self, length: int) -> np.array:
         population = []
         for i in range(self.size):
             species = Species(np.random.permutation(length))
             population.append(species)
 
-        return population
+        return np.array(population)

@@ -14,39 +14,43 @@ class Selection(ABC):
 
 
 class TournamentSelection(Selection):
-    def select(self, population: np.array, k: int = 2) -> np.array:
+    def __init__(self, survived: float, k: int = 2):
+        super().__init__(survived)
+        self.k = k
+
+    def select(self, population: np.array) -> np.array:
         n = len(population)
-        killed = []
+        # killed = []
         while len(population) > self.survived * n:
-            get_sample = random.sample(list(range(len(population))), k)
-            max_index = max(get_sample, key=lambda x: population[x].fitness())
+            get_sample = random.sample(list(range(len(population))), self.k)
+            max_index = max(get_sample, key=lambda x: population[x].get_fitness())
             for index in get_sample:
                 if index != max_index:
-                    killed.append(population.pop(index))
+                    # killed.append(population[index])
+                    population = np.append(population[:index], population[index + 1:])
 
-        return population, killed
+        return population
 
 
 class RouletteSelection(Selection):
     def select(self, population: np.array) -> np.array:
-        fitnesses = np.array(list(map(lambda x: x.fitness(), population)))
-        summa = np.sum(fitnesses)
-        probs = fitnesses / summa
-        distr = sps.bernoulli(probs)
-        is_keeping = distr.rvs() == 1
-        return population[is_keeping], population[np.logical_not(is_keeping)]
+        fitnesses = np.array(list(map(lambda x: x.get_fitness(), population)))
+        max_fitness = np.max(fitnesses) + 1
+        summa = np.sum(max_fitness - fitnesses)
+        probs = (max_fitness - fitnesses) / summa
+
+        return np.random.choice(population, int(np.ceil(len(population) * self.survived)), p=probs)
 
 
-class RankSelection(Selection):
-    def select(self, population: np.array, a: float = 1):
-        fitnesses = np.array(list(map(lambda x: x.fitness(), population)))
+class RankSelection(Selection): # TODO сверить определение
+    def select(self, population: np.array, a: float = 1) -> np.array:
+        fitnesses = np.array(list(map(lambda x: x.get_fitness(), population)))
         order = np.flip(np.argsort(fitnesses))
         n = len(population)
         b = 2 - a
         probs = (a - (a - b) * order / (n - 1)) / n
-        distr = sps.bernoulli(probs)
-        is_keeping = distr.rvs() == 1
-        return population[is_keeping], population[np.logical_not(is_keeping)]
+
+        return np.random.choice(population, int(np.ceil(len(population) * self.survived)), p=probs)
 
 
 
