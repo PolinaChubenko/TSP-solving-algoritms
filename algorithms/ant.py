@@ -152,7 +152,7 @@ class AntColony:
 
             for ant in range(self.settings.ants):
                 ant_state = ants_position[ant]
-                trail = self._generate_solution(tsp.State(1 << ant_state, ant_state), tsp.successors, tsp.goal)
+                trail = self._generate_solution(tsp.State(1 << int(ant_state), ant_state), tsp.successors, tsp.goal)
                 trails.append(trail)
 
                 if logging:

@@ -44,7 +44,7 @@ class TSP:
         ret: List[Tuple[TSP.State, float]] = []
 
         for next_node in range(len(self.cities)):
-            new_state = TSP.State(1 << next_node | current_state.visited, next_node)
+            new_state = TSP.State(1 << next_node | int(current_state.visited), next_node)
 
             if current_state.visited != new_state.visited:
                 ret.append((new_state, self.dist(current_state.current_node, next_node)))
