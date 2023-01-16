@@ -32,3 +32,7 @@ class Species:
     def __lt__(self, other):
         return self.get_fitness() < other.get_fitness()
 
+    def copy(self):
+        return Species(self.path.copy())
+
+

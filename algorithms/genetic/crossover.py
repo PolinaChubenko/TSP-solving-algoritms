@@ -17,13 +17,13 @@ class InbreedingParentGenerator(ParentGenerator):
 
         for i in range(pairs):
             index = random.randint(0, len(sorted_population) - 1)
-            fitness = sorted_population[i].get_fitness()
-            prev_fitness = sorted_population[(i - 1 + len(sorted_population)) % len(sorted_population)].get_fitness()
-            next_fitness = sorted_population[(i + 1) % len(sorted_population)].get_fitness()
+            fitness = sorted_population[index].get_fitness()
+            prev_fitness = sorted_population[(index - 1 + len(sorted_population)) % len(sorted_population)].get_fitness()
+            next_fitness = sorted_population[(index + 1) % len(sorted_population)].get_fitness()
             if abs(fitness - prev_fitness) < abs(fitness - next_fitness):
-                yield sorted_population[index], sorted_population[(i - 1 + len(sorted_population)) % len(sorted_population)]
+                yield sorted_population[index], sorted_population[(index - 1 + len(sorted_population)) % len(sorted_population)]
             else:
-                yield sorted_population[index], sorted_population[(i + 1) % len(sorted_population)]
+                yield sorted_population[index], sorted_population[(index + 1) % len(sorted_population)]
 
 
 class OutbreedingParentGenerator(ParentGenerator):

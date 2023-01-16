@@ -50,13 +50,15 @@ class GeneticAlgorithm:
 
             # normalize population and save history
             population = np.sort(population)
-            if (best_answer is None) or (population[0] < best_answer):
-                best_answer = population[0]
+            if (best_answer is None) or (population[0].get_fitness() < best_answer.get_fitness()):
+                best_answer = population[0].copy()
 
             tsp.add_iteration(tsp.path_length(population[0].get_path()))
             best_answer_states = [TSP.State(0, best_answer.get_path()[i]) for i in range(len(best_answer.get_path()))]
+            best_answer_states.append(TSP.State(0, best_answer.get_path()[0]))
+            tsp.add_to_history(best_answer_states, best_answer.get_fitness())
 
-            tsp.add_to_history(best_answer_states, tsp.path_length(best_answer.get_path()))
+            print(i)
 
         return best_answer.get_fitness()
 
