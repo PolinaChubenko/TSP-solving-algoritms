@@ -17,13 +17,13 @@ class InbreedingParentGenerator(ParentGenerator):
 
         for i in range(pairs):
             index = random.randint(0, len(sorted_population) - 1)
-            fitness = sorted_population[i].get_fitness()
-            prev_fitness = sorted_population[(i - 1 + len(sorted_population)) % len(sorted_population)].get_fitness()
-            next_fitness = sorted_population[(i + 1) % len(sorted_population)].get_fitness()
+            fitness = sorted_population[index].get_fitness()
+            prev_fitness = sorted_population[(index - 1 + len(sorted_population)) % len(sorted_population)].get_fitness()
+            next_fitness = sorted_population[(index + 1) % len(sorted_population)].get_fitness()
             if abs(fitness - prev_fitness) < abs(fitness - next_fitness):
-                yield sorted_population[index], sorted_population[(i - 1 + len(sorted_population)) % len(sorted_population)]
+                yield sorted_population[index], sorted_population[(index - 1 + len(sorted_population)) % len(sorted_population)]
             else:
-                yield sorted_population[index], sorted_population[(i + 1) % len(sorted_population)]
+                yield sorted_population[index], sorted_population[(index + 1) % len(sorted_population)]
 
 
 class OutbreedingParentGenerator(ParentGenerator):
@@ -49,9 +49,6 @@ class PanmixiaParentGenerator(ParentGenerator):
 
 
 class Crossover(ABC):
-    def generate_two_children(self, first_parent: Species, second_parent: Species) -> (Species, Species):
-        return self.generate_offspring(first_parent, second_parent), self.generate_offspring(second_parent, first_parent)
-
     @abstractmethod
     def generate_offspring(self, first_parent: Species, second_parent: Species) -> Species:
         pass
@@ -106,18 +103,18 @@ class EdgeRecombinationCrossover(Crossover):
 
         def step(self, prev) -> int:
             # 1. find city with max not used incident edges
-            max_value = -1
-            max_index = []
+            min_value = -1
+            min_index = []
             for i in self.map[prev].set:
-                if self.map[i].not_used > max_value:
-                    max_value = self.map[i].not_used
-                    max_index = [i]
-                elif self.map[i].not_used == max_value:
-                    max_index.append(i)
+                if min_value == -1 or 0 < self.map[i].not_used < min_value:
+                    min_value = self.map[i].not_used
+                    min_index = [i]
+                elif self.map[i].not_used == min_value:
+                    min_index.append(i)
 
             # 2. select one of these cities randomly
-            if len(max_index) > 0:
-                random_index = max_index[random.randint(0, len(max_index) - 1)]
+            if len(min_index) > 0:
+                random_index = min_index[random.randint(0, len(min_index) - 1)]
             else:
                 random_index = random.choice(list(self.not_used))
 

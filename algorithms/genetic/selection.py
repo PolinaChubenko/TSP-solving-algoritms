@@ -45,7 +45,7 @@ class RouletteSelection(Selection):
 class RankSelection(Selection): # TODO сверить определение
     def select(self, population: np.array, a: float = 1) -> np.array:
         fitnesses = np.array(list(map(lambda x: x.get_fitness(), population)))
-        order = np.flip(np.argsort(fitnesses))
+        order = np.argsort(fitnesses)
         n = len(population)
         b = 2 - a
         probs = (a - (a - b) * order / (n - 1)) / n

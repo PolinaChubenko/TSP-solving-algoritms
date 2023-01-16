@@ -43,6 +43,7 @@ class SwapMutation(Mutation):
 
         return species
 
+
 class ScrambleMutation(Mutation):
     def mutate(self, species: Species) -> Species:
         path = species.get_path()
@@ -58,3 +59,31 @@ class ScrambleMutation(Mutation):
 
         species.set_path(path)
         return species
+
+
+class TwoOptMutation(Mutation):
+    def __init__(self, mutated: float, k: int = 1):
+        super().__init__(mutated)
+        self.k = k
+
+    def mutate(self, species: Species) -> Species:
+        for i in range(self.k):
+            a = random.randint(0, species.size() - 1)
+            c = (a + 2 + random.randint(0, species.size() - 4)) % species.size() # cannot choose A and B
+            if a > c:
+                a, c = c, a
+
+            b = a + 1
+            d = c + 1
+
+            path = np.copy(species.get_path())
+            path = np.append(path, path)
+            bc = path[b:c + 1]
+            ad = np.array(list(reversed(path[d:species.size() + a + 1])))
+            new_path = np.append(ad, bc)
+
+            species.set_path(new_path)
+
+            return species
+
+

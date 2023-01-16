@@ -70,6 +70,10 @@ class TSP:
         """Euclidean distance between cities."""
         return self.distance_matrix[u][v]
 
+    def dists(self):
+        """Get distance matrix"""
+        return self.distance_matrix
+
     def cities_to_dict(self) -> Dict:
         """Get cities for TSP problem as dict"""
         cities_dict = {}
