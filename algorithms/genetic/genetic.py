@@ -25,7 +25,7 @@ class GeneticAlgorithm:
     def __init__(self, settings: Settings):
         self.settings = settings
 
-    def solve(self, tsp: TSP) -> float:
+    def solve(self, tsp: TSP, logging: bool = True) -> float:
         Species.set_tsp(tsp)
         population = self.settings.creation.generate_population(tsp.cities_amount)  # TODO
         # alltime_killed = np.array([])
@@ -53,10 +53,11 @@ class GeneticAlgorithm:
             if (best_answer is None) or (population[0].get_fitness() < best_answer.get_fitness()):
                 best_answer = population[0].copy()
 
-            tsp.add_iteration(tsp.path_length(population[0].get_path()))
-            best_answer_states = [TSP.State(0, best_answer.get_path()[i]) for i in range(len(best_answer.get_path()))]
-            best_answer_states.append(TSP.State(0, best_answer.get_path()[0]))
-            tsp.add_to_history(best_answer_states, best_answer.get_fitness())
+            if logging:
+                tsp.add_iteration(tsp.path_length(population[0].get_path()))
+                best_answer_states = [TSP.State(0, best_answer.get_path()[i]) for i in range(len(best_answer.get_path()))]
+                best_answer_states.append(TSP.State(0, best_answer.get_path()[0]))
+                tsp.add_to_history(best_answer_states, best_answer.get_fitness())
 
 
         return best_answer.get_fitness()
