@@ -3,7 +3,7 @@ from typing import NamedTuple, List, Tuple, Dict, Any
 import numpy as np
 from scipy.spatial import distance_matrix
 from multipledispatch import dispatch
-
+import time
 
 class TSP:
     class City(NamedTuple):
@@ -19,8 +19,10 @@ class TSP:
         self._solution = 0
         self.cities = cities
         self.dist_in_iterations = []
+        self.timestamps_in_iterations = []
         self.solutions_history = []
         self.ants_dists = []
+        self.start_time = time.time()
 
         cities_coords = np.array([[c.x, c.y] for c in self.cities])
         self.distance_matrix = distance_matrix(cities_coords, cities_coords)
@@ -106,10 +108,11 @@ class TSP:
         After each iteration of the algorithm this function may be called
         to add found solution (distance) to the list of iterations."""
         self.dist_in_iterations.append(dist)
+        self.timestamps_in_iterations.append(time.time() - self.start_time)
 
-    def get_iterations(self) -> List[float]:
+    def get_iterations(self) -> (List[float], List[float]):
         """Return list of dists for each iteration"""
-        return self.dist_in_iterations
+        return self.dist_in_iterations, self.timestamps_in_iterations
 
     def add_to_history(self, path: List, dist: float) -> None:
         """History saving function

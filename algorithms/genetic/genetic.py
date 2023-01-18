@@ -58,7 +58,6 @@ class GeneticAlgorithm:
             best_answer_states.append(TSP.State(0, best_answer.get_path()[0]))
             tsp.add_to_history(best_answer_states, best_answer.get_fitness())
 
-            print(i)
 
         return best_answer.get_fitness()
 
