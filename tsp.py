@@ -32,6 +32,8 @@ class TSP:
         self.dist_in_iterations = []
         self.solutions_history = []
         self.ants_dists = []
+        self.timestamps_in_iterations = []
+        self.start_time = time.time()
 
     @property
     def cities_amount(self):
@@ -110,9 +112,13 @@ class TSP:
         self.dist_in_iterations.append(dist)
         self.timestamps_in_iterations.append(time.time() - self.start_time)
 
-    def get_iterations(self) -> (List[float], List[float]):
+    def get_iterations(self) -> List[float]:
         """Return list of dists for each iteration"""
-        return self.dist_in_iterations, self.timestamps_in_iterations
+        return self.dist_in_iterations
+
+    def get_timestamps(self) -> List[float]:
+        """Return timestamps for iterations"""
+        return self.timestamps_in_iterations
 
     def add_to_history(self, path: List, dist: float) -> None:
         """History saving function
