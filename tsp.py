@@ -109,8 +109,10 @@ class TSP:
 
         After each iteration of the algorithm this function may be called
         to add found solution (distance) to the list of iterations."""
+
         self.dist_in_iterations.append(dist)
         self.timestamps_in_iterations.append(time.time() - self.start_time)
+
 
     def get_iterations(self) -> List[float]:
         """Return list of dists for each iteration"""
